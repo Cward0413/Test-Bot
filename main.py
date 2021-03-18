@@ -4,6 +4,7 @@ import requests
 import json
 from replit import db
 import random
+from playsound import playsound
 
 client = discord.Client()
 
@@ -12,12 +13,11 @@ starterTickers = ["GME", "AMC", "NOK", "BB"]
 
 def getPic():
   response = requests.get("https://inspirobot.me//api?generate=true")
-  print(response.text)
   url = response.text
   return(url)
 
 def updateWatchlist(watchlistAdd):
-  if "tickers" in db.key():
+  if "tickers" in db.keys():
     tickers = db["tickers"]
     tickers.append(watchlistAdd)
     db["tickers"] = tickers
@@ -53,20 +53,25 @@ async def on_message(message):
 
   options = starterTickers
   if "tickers" in db.keys():
-    options = + db["tickers"]
+    options = options + db["tickers"]
 
   if message.content.startswith('!add'):
     watchlistAdd = msg.split("!add ",1)[1]
     updateWatchlist(watchlistAdd)
     await message.channel.send("Ticker added to watchlist")
 
-  #if message.content.startswith("!del"):
+  if message.content.startswith("!del"):
     tickers = []
     if "tickers" in db.keys():
-      index = int(msg.split("$del",1)[1])
+      index = int(msg.split("$del ",1)[1])
       deleteWatchlist(index)
       tickers = db["tickers"]
+      await message.channel.send(tickers)
+
+  if message.content.startswith("!list"):
+    tickers = db["tickers"]
     await message.channel.send(tickers)
+
 
 client.run(os.getenv('TOKEN'))
   
