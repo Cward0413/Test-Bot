@@ -4,7 +4,9 @@ import requests
 import json
 from replit import db
 import random
-from playsound import playsound
+import ffmpeg
+opus.load_opus()
+
 
 client = discord.Client()
 
@@ -63,7 +65,8 @@ async def on_message(message):
   if message.content.startswith("!del"):
     tickers = []
     if "tickers" in db.keys():
-      index = int(msg.split("$del ",1)[1])
+      index = int(msg.split("!del ",1)[1])
+      index = index - 1
       deleteWatchlist(index)
       tickers = db["tickers"]
       await message.channel.send(tickers)
@@ -72,6 +75,21 @@ async def on_message(message):
     tickers = db["tickers"]
     await message.channel.send(tickers)
 
+
+  if message.content.startswith("!play"):
+    connected = message.author.voice
+    player = None
+    if connected:
+        player = await connected.channel.connect()
+        return player
+    audio_source = discord.FFmpegPCMAudio('Eternity.mp3')
+    player.play(audio_source, after=None)
+    return player
+
+  if message.content.startswith('!stop'):
+    audio_source = discord.FFmpegPCMAudio('Eternity.mp3')    
+    player.stop(audio_source, after=None)
+    await player.disconnect()
 
 client.run(os.getenv('TOKEN'))
   
